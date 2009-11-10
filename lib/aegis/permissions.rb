@@ -1,66 +1,67 @@
 module Aegis
   class Permissions
-  
+
     def self.inherited(base)
       base.class_eval do
+        @default_role = nil
         @roles_by_name = {}
         @permission_blocks = Hash.new { |hash, key| hash[key] = [] }
         extend ClassMethods
       end
-    end    
+    end
 
     module ClassMethods
-    
- 
+
+      def default_role(role_name, options = {})
+        @default_role = role(role_name, options)
+      end
+
       def role(role_name, options = {})
         role_name = role_name.to_sym
         role_name != Aegis::Constants::EVERYONE_ROLE_NAME or raise "Cannot define a role named: #{Aegis::Constants::EVERYONE_ROLE_NAME}"
         @roles_by_name[role_name] = Aegis::Role.new(role_name, self, options)
       end
-      
+
       def find_all_role_names
         @roles_by_name.keys
       end
-      
+
       def find_all_roles
         @roles_by_name.values.sort
       end
-      
+
       def find_role_by_name(name)
-        # cannot call :to_sym on nil or an empty string
-        if name.blank?
-          nil
-        else
-          @roles_by_name[name.to_sym]
-        end
+        return nil if name == ""
+        # If name is nil, try to return the default role.
+        name.nil? ? @default_role : @roles_by_name[name.to_sym]
       end
-      
+
       def find_role_by_name!(name)
         find_role_by_name(name) or raise "Undefined role: #{name}"
       end
-      
+
       def permission(*permission_name_or_names, &block)
         permission_names = Array(permission_name_or_names).map(&:to_s)
         permission_names.each do |permission_name|
           add_split_crud_permission(permission_name, &block)
         end
       end
-      
+
       def may?(role_or_role_name, permission, *args)
         role = role_or_role_name.is_a?(Aegis::Role) ? role_or_role_name : find_role_by_name(role_or_role_name)
         blocks = @permission_blocks[permission.to_sym]
         evaluate_permission_blocks(role, blocks, *args)
       end
-      
+
       def evaluate_permission_blocks(role, blocks, *args)
     evaluator = Aegis::PermissionEvaluator.new(role)
     evaluator.evaluate(blocks, args)
       end
-      
+
       def denied?(*args)
         !allowed?(*args)
       end
-      
+
       private
 
       def add_split_crud_permission(permission_name, &block)
@@ -78,7 +79,7 @@ module Aegis
         normalized_permission_name = Aegis::Normalization.normalize_permission(permission_name)
         add_singularized_permission(normalized_permission_name, &block)
       end
-      
+
       def add_singularized_permission(permission_name, &block)
         if permission_name =~ /^([^_]+?)_(.+?)$/
           verb = $1
@@ -95,14 +96,13 @@ module Aegis
         end
         add_permission(permission_name, &block)
       end
-      
+
       def add_permission(permission_name, &block)
         permission_name = permission_name.to_sym
         @permission_blocks[permission_name] << block
       end
- 
+
     end # module ClassMethods
-    
+
   end # class Permissions
 end # module Aegis
-

@@ -6,14 +6,14 @@ Aegis allows you to manage fine-grained, complex permission for user accounts in
 
 Add the following to your <tt>Initializer.run</tt> block in your <tt>environment.rb</tt>:
     config.gem 'aegis', :source => 'http://gemcutter.org'
-Then do a 
+Then do a
     sudo rake gems:install
 
 Alternatively, use
     sudo gem sources -a http://gemcutter.org
     sudo gem install aegis
 
-== Example 
+== Example
 
 First, let's define some roles:
 
@@ -24,14 +24,14 @@ First, let's define some roles:
       role :registered_user
       role :moderator
       role :administrator, :default_permission => :allow
-      
+
       permission :edit_post do |user, post|
         allow :registered_user do
           post.creator == user      # a registered_user can only edit his own posts
         end
         allow :moderator
       end
-      
+
       permission :read_post do |post|
         allow :everyone
         deny :guest do
@@ -52,7 +52,7 @@ column +role_name+.
 
 
 These permissions may be used in views and controllers:
-    
+
     # app/views/posts/index.html.erb
     @posts.each do |post|
       <% if current_user.may_read_post? post %>
@@ -75,6 +75,19 @@ These permissions may be used in views and controllers:
       end
 
     end
+
+You might want to specifiy a default role:
+    class Permissions < Aegis::Permissions
+      default_role 'role_name'
+    end
+
+This role will be returned for objects that has +nil+ as their +role_name+. This
+greatly reduces noise in your database (i.e. if you have 100 000 users, you don't
+have to store 'role_name' for each row, just for your non-default
+roles). +default_role+ takes the same options as +role+.
+
+To explicitly make sure that a given row won't have a permission object, set
++role_name+ to the empty string ("").
 
 == Details
 
@@ -116,7 +129,7 @@ Aegis::PermissionError for +role_c+.
 === Normalization
 
 Aegis will perform some normalization. For example, the permissions
-+edit_something+ and +update_something+ will be the same, each granting both 
++edit_something+ and +update_something+ will be the same, each granting both
 <tt>may_edit_something?</tt> and <tt>may_update_something?</tt>. The following normalizations
 are active:
 * edit = update
@@ -124,7 +137,7 @@ are active:
 * delete = remove = destroy
 
 === Complex permissions (with parameters)
- 
+
 *allow* and *deny* can also take a block that may return +true+ or +false+
 indicating if this really applies. So
     permission :pull_april_fools_prank do
@@ -177,7 +190,7 @@ We believe that you should only distinguish roles that have different ways of re
 * signed up user (has access to some things depending on its attributes and associations)
 * administrator (has access to everything)
 
-We don't do multiple, parametrized roles like "leader for project #2" and "author of post #7". 
+We don't do multiple, parametrized roles like "leader for project #2" and "author of post #7".
 That would be reinventing associations. Just use a single :user role and let your permission block
 query regular associations and attributes.
 
