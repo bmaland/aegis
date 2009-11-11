@@ -39,8 +39,18 @@ class HasRoleTest < ActiveSupport::TestCase
       end
     end
 
-    should "have a default roule" do
+    should "have a default role" do
       assert :guest, User.new(:role_name => nil).role.name
+    end
+
+    should "know that they respond to permission methods" do
+      assert @guest.respond_to?(:may_foo?)
+      assert @guest.respond_to?(:may_foo!)
+    end
+
+    should "retain the usual respond_to behaviour for non-permission methods" do
+      assert !@guest.respond_to?(:nonexisting_method)
+      assert @guest.respond_to?(:to_s)
     end
 
   end
