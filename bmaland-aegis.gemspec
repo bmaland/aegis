@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{bmaland-aegis}
-  s.version = "1.1.5"
+  s.version = "1.1.6"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Henning Koch"]
-  s.date = %q{2009-11-10}
+  s.date = %q{2009-11-11}
   s.description = %q{Aegis is a role-based permission system, where all users are given a role. It is possible to define detailed and complex permissions for each role very easily.}
   s.email = %q{github@makandra.de}
   s.extra_rdoc_files = [
@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
      "README.rdoc",
      "Rakefile",
      "VERSION",
+     "bmaland-aegis.gemspec",
      "init.rb",
      "lib/aegis.rb",
      "lib/aegis/constants.rb",

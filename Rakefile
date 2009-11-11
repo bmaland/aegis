@@ -31,7 +31,7 @@ begin
     gemspec.homepage = "http://github.com/bmaland/aegis"
     gemspec.description = "Aegis is a role-based permission system, where all users are given a role. It is possible to define detailed and complex permissions for each role very easily."
     gemspec.authors = ["Henning Koch"]
-    gemspec.version = '1.1.5'
+    gemspec.version = '1.1.6'
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: sudo gem install technicalpickles-jeweler -s http://gems.github.com"
